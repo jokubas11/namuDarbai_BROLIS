@@ -112,42 +112,41 @@ class Ui_MainWindow(object):
     def gautiTemperatura(self):
         self.infoLaukas2.setText("")
 
-        char = 'u'
-        serialPort.write(char.encode())
+        uzklausa = "a\n"
+        self.siustiUzklausa(uzklausa)
 
         self.infoLaukas.setText("temperatura yra 45 abarotai")
         
         
-
     def gautiMygtuka(self):
         self.infoLaukas2.setText("")
 
         char = 'd'
-        serialPort.write(char.encode())
+        serialPort.write(uzklausa.encode())
 
         self.infoLaukas.setText("mygtukas")
 
     def gautiVardaSerNr(self):
         self.infoLaukas2.setText("")
 
-        char = 'a'
-        serialPort.write(char.encode())
+        uzklausa = 'a\n'
+        serialPort.write(uzklausa.encode())
 
         self.infoLaukas.setText("vardas ser nr")
 
     def gautiLaika(self):
         self.infoLaukas2.setText("")
 
-        char = 'b'
-        serialPort.write(char.encode())
+        uzklausa = 'b'
+        serialPort.write(uzklausa.encode())
 
         self.infoLaukas.setText("laikas")
 
     def nustatytiLaika(self):
         self.infoLaukas.setText("")
 
-        char = 'c'
-        serialPort.write(char.encode())
+        uzklausa = 'c'
+        serialPort.write(uzklausa.encode())
 
         self.infoLaukas2.setText("nustatytas laikas")
 
@@ -166,6 +165,12 @@ class Ui_MainWindow(object):
         self.serNrTekstas.setText("")
 
         self.infoLaukas2.setText(tekstoLaukas)
+
+    def siustiUzklausa(self, uzklausa):
+
+        print(uzklausa.encode())
+        serialPort.write(uzklausa.encode())
+
 
 
 if __name__ == "__main__":
