@@ -121,55 +121,93 @@ class Ui_MainWindow(object):
     def gautiMygtuka(self):
         self.infoLaukas2.setText("")
 
-        char = 'd'
-        serialPort.write(uzklausa.encode())
+        uzklausa = 'b\n'
+        self.siustiUzklausa(uzklausa)
 
         self.infoLaukas.setText("mygtukas")
 
     def gautiVardaSerNr(self):
         self.infoLaukas2.setText("")
 
-        uzklausa = 'a\n'
-        serialPort.write(uzklausa.encode())
+        uzklausa = 'c\n'
+        self.siustiUzklausa(uzklausa)
 
         self.infoLaukas.setText("vardas ser nr")
 
     def gautiLaika(self):
         self.infoLaukas2.setText("")
 
-        uzklausa = 'b'
-        serialPort.write(uzklausa.encode())
+        uzklausa = 'd\n'
+        self.siustiUzklausa(uzklausa)
 
         self.infoLaukas.setText("laikas")
 
     def nustatytiLaika(self):
         self.infoLaukas.setText("")
 
-        uzklausa = 'c'
-        serialPort.write(uzklausa.encode())
+        try:
+            uzklausa = 'e' + str(round(time.clock_gettime(time.CLOCK_REALTIME) + 3600)) + '\n'
+        except:
+            uzklausa = 'k\n'
+        self.siustiUzklausa(uzklausa)
 
         self.infoLaukas2.setText("nustatytas laikas")
 
     def nustatytiVarda(self):
         self.infoLaukas.setText("")
 
-        tekstoLaukas = self.vardasTekstas.text()
+        try:
+            tekstoLaukas = self.vardasTekstas.text()
+            uzklausa = 'f' + str(tekstoLaukas) + '\n'
+        except:
+            uzklausa = 'k\n'
+
         self.vardasTekstas.setText("")
 
-        self.infoLaukas2.setText(tekstoLaukas)
+
+        self.siustiUzklausa(uzklausa)
+
 
     def nustatytiSerNr(self):
         self.infoLaukas.setText("")
 
-        tekstoLaukas = self.serNrTekstas.text()
+        try:
+            tekstoLaukas = self.serNrTekstas.text()
+            uzklausa = 'g' + str(tekstoLaukas) + '\n'
+        except:
+            uzklausa = 'k\n'
+
         self.serNrTekstas.setText("")
 
-        self.infoLaukas2.setText(tekstoLaukas)
+        uzklausa = 'g' + str(tekstoLaukas) + '\n'
+        self.siustiUzklausa(uzklausa)
+
 
     def siustiUzklausa(self, uzklausa):
 
-        print(uzklausa.encode())
-        serialPort.write(uzklausa.encode())
+        galimaSiustiUzklausa = True
+
+        if (uzklausa[0] in ['f', 'g']):
+            
+            if (len(uzklausa) < 3):
+                self.infoLaukas2.setText("Palikote tuščią lauką")
+                galimaSiustiUzklausa = False
+
+            elif (len(uzklausa) > 18):
+                self.infoLaukas2.setText("Maksimalus simbolių kiekis - 16")
+                galimaSiustiUzklausa = False
+
+        if (uzklausa[0] == 'k'):
+            galimaSiustiUzklausa = False
+            self.infoLaukas2.setText("Nenumatyta klaida")
+
+        if (galimaSiustiUzklausa):    
+            print(uzklausa.encode())
+            serialPort.write(uzklausa.encode())
+            time.sleep(0.1)
+            line = serialPort.readline()
+
+            print(line)
 
 
 
@@ -180,7 +218,7 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
 
-    serialPort = serial.Serial('/dev/serial/by-id/usb-mbed_Microcontroller_101000000000000000000002F7F2EE10-if01', 9600)
+    serialPort = serial.Serial('/dev/serial/by-id/usb-mbed_Microcontroller_101000000000000000000002F7F2EE10-if01', 9600, timeout = 20)
     
     MainWindow.show()
     sys.exit(app.exec_())
