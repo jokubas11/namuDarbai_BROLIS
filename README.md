@@ -1,18 +1,18 @@
-Namų darbas: komunikacijos mechanizmas tarp kompiuterio ir mbed LPC1768.
+Task: communication mechanism between PC and mbed LPC1768
 
-programa.py funkcijos:
-1. Nustatyti prietaiso vardą ir serijinį numerį
-2. Nustatyti prietaiso datą ir laiką iš kompiuterio
-3. Nuskaityti ir atvaizduoti šiuos duomenis
-4. Nuskaityti temperaturą
-5. Nuskaityti mygtuko (joystick šiuo atveju) būseną
-6. Ištrinti flash atmintį
+programa.py functions:
+1. Set device name and serial number
+2. Set date and time for device using PC time
+3. Read and display data mentioned before
+4. Read and display temperature
+5. Read button status
+6. Write and delete into mbed flash memory from RAM
 
 main.cpp funkcijos:
-1. Atiduoti duomenis pagal programa.py užklausas
-2. Išsaugoti nustatomus duomenis iš RAM į flash atmintį
-3. Skaičiuoti laiką, datą
-4. Atvaizduoti komunikacijos būseną su LED
-5. Atvaizduoti komunikacijos būseną prietaiso ekrane (LCD)
+1. Send back the data according to PC's request
+2. Save and load data into and from flash memory
+3. Keep track of date and time
+4. Display communication status with an LED
+5. Display communication status using LCD screen
 
 PyQt version = 5.15.4
