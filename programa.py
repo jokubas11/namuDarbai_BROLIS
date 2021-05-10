@@ -4,90 +4,78 @@ import time
 from datetime import datetime
 
 class Ui_MainWindow(object):
-    
+
+
     """
-    Tiesiog user interface, nustato vieta, mygtuku vardus ir prijungia
-    juos prie tam skirtu funkciju
+    initializing method related to object placement within the interface window
     """
     def setupUi(self, MainWindow):
         
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(595, 459)
-        MainWindow.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
         
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         
-        self.istrintiAtminti = QtWidgets.QPushButton(self.centralwidget)
-        self.istrintiAtminti.setGeometry(QtCore.QRect(130, 130, 331, 31))
-        self.istrintiAtminti.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
-        self.istrintiAtminti.setObjectName("istrintiAtminti")
-        self.istrintiAtminti.clicked.connect(self.trintiAtminti)
+        self.buttonDeleteMemory = QtWidgets.QPushButton(self.centralwidget)
+        self.buttonDeleteMemory.setGeometry(QtCore.QRect(130, 130, 331, 31))
+        self.buttonDeleteMemory.setObjectName("buttonDeleteMemory")
+        self.buttonDeleteMemory.clicked.connect(self.deleteFlashMemory)
 
-        self.mygtGautiTemperatura = QtWidgets.QPushButton(self.centralwidget)
-        self.mygtGautiTemperatura.setGeometry(QtCore.QRect(130, 10, 331, 31))
-        self.mygtGautiTemperatura.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
-        self.mygtGautiTemperatura.setObjectName("mygtTemperatura")
-        self.mygtGautiTemperatura.clicked.connect(self.gautiTemperatura)
+        self.buttonGetTemp = QtWidgets.QPushButton(self.centralwidget)
+        self.buttonGetTemp.setGeometry(QtCore.QRect(130, 10, 331, 31))
+        self.buttonGetTemp.setObjectName("buttonGetTemp")
+        self.buttonGetTemp.clicked.connect(self.getTemperature)
         
-        self.mygtGautiLaika = QtWidgets.QPushButton(self.centralwidget)
-        self.mygtGautiLaika.setGeometry(QtCore.QRect(130, 70, 331, 31))
-        self.mygtGautiLaika.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
-        self.mygtGautiLaika.setObjectName("mygtGautiLaika")
-        self.mygtGautiLaika.clicked.connect(self.gautiLaika)
+        self.buttonGetTime = QtWidgets.QPushButton(self.centralwidget)
+        self.buttonGetTime.setGeometry(QtCore.QRect(130, 70, 331, 31))
+        self.buttonGetTime.setObjectName("buttonGetTime")
+        self.buttonGetTime.clicked.connect(self.getCurrentTime)
         
-        self.mygtGautiVardaSerNr = QtWidgets.QPushButton(self.centralwidget)
-        self.mygtGautiVardaSerNr.setGeometry(QtCore.QRect(130, 100, 331, 31))
-        self.mygtGautiVardaSerNr.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
-        self.mygtGautiVardaSerNr.setObjectName("mygtGautiVarda")
-        self.mygtGautiVardaSerNr.clicked.connect(self.gautiVardaSerNr)
+        self.buttonGetNameSerial = QtWidgets.QPushButton(self.centralwidget)
+        self.buttonGetNameSerial.setGeometry(QtCore.QRect(130, 100, 331, 31))
+        self.buttonGetNameSerial.setObjectName("buttonGetName")
+        self.buttonGetNameSerial.clicked.connect(self.getNameAndSerial)
         
-        self.mygtGautiMygtuka = QtWidgets.QPushButton(self.centralwidget)
-        self.mygtGautiMygtuka.setGeometry(QtCore.QRect(130, 40, 331, 31))
-        self.mygtGautiMygtuka.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
-        self.mygtGautiMygtuka.setObjectName("mygtGautiMygtuka")
-        self.mygtGautiMygtuka.clicked.connect(self.gautiMygtuka)
+        self.buttonGetButton = QtWidgets.QPushButton(self.centralwidget)
+        self.buttonGetButton.setGeometry(QtCore.QRect(130, 40, 331, 31))
+        self.buttonGetButton.setObjectName("buttonGetButton")
+        self.buttonGetButton.clicked.connect(self.getButton)
         
-        self.infoLaukas = QtWidgets.QLabel(self.centralwidget)
-        self.infoLaukas.setGeometry(QtCore.QRect(130, 170, 331, 51))
-        self.infoLaukas.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
-        self.infoLaukas.setAlignment(QtCore.Qt.AlignCenter)
-        self.infoLaukas.setObjectName("infoLaukas")
+        self.infoField = QtWidgets.QLabel(self.centralwidget)
+        self.infoField.setGeometry(QtCore.QRect(130, 170, 331, 51))
+        self.infoField.setAlignment(QtCore.Qt.AlignCenter)
+        self.infoField.setObjectName("infoField")
 
-        self.infoLaukas2 = QtWidgets.QLabel(self.centralwidget)
-        self.infoLaukas2.setGeometry(QtCore.QRect(130, 350, 331, 51))
-        self.infoLaukas2.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
-        self.infoLaukas2.setAlignment(QtCore.Qt.AlignCenter)
-        self.infoLaukas2.setObjectName("infoLaukas2")
+        self.infoField2 = QtWidgets.QLabel(self.centralwidget)
+        self.infoField2.setGeometry(QtCore.QRect(130, 350, 331, 51))
+        self.infoField2.setAlignment(QtCore.Qt.AlignCenter)
+        self.infoField2.setObjectName("infoField2")
         
-        self.serNrTekstas = QtWidgets.QLineEdit(self.centralwidget)
-        self.serNrTekstas.setGeometry(QtCore.QRect(70, 310, 191, 21))
-        self.serNrTekstas.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
-        self.serNrTekstas.setObjectName("serNrTekstas")
+        self.serialTextField = QtWidgets.QLineEdit(self.centralwidget)
+        self.serialTextField.setGeometry(QtCore.QRect(70, 310, 191, 21))
+        self.serialTextField.setText("")
+        self.serialTextField.setObjectName("serialTextField")
 
-        self.vardasTekstas = QtWidgets.QLineEdit(self.centralwidget)
-        self.vardasTekstas.setGeometry(QtCore.QRect(70, 280, 191, 21))
-        self.vardasTekstas.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
-        self.vardasTekstas.setText("")
-        self.vardasTekstas.setObjectName("vardasTekstas")
+        self.nameTextField = QtWidgets.QLineEdit(self.centralwidget)
+        self.nameTextField.setGeometry(QtCore.QRect(70, 280, 191, 21))
+        self.nameTextField.setText("")
+        self.nameTextField.setObjectName("nameTextField")
 
-        self.mygtNustatytiLaika = QtWidgets.QPushButton(self.centralwidget)
-        self.mygtNustatytiLaika.setGeometry(QtCore.QRect(130, 230, 331, 31))
-        self.mygtNustatytiLaika.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
-        self.mygtNustatytiLaika.setObjectName("mygtNustatytiLaika")
-        self.mygtNustatytiLaika.clicked.connect(self.nustatytiLaika)
+        self.buttonSetTime = QtWidgets.QPushButton(self.centralwidget)
+        self.buttonSetTime.setGeometry(QtCore.QRect(130, 230, 331, 31))
+        self.buttonSetTime.setObjectName("buttonSetTime")
+        self.buttonSetTime.clicked.connect(self.setCurrentTime)
 
-        self.mygtNustatytiVarda = QtWidgets.QPushButton(self.centralwidget)
-        self.mygtNustatytiVarda.setGeometry(QtCore.QRect(280, 280, 271, 20))
-        self.mygtNustatytiVarda.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
-        self.mygtNustatytiVarda.setObjectName("mygtNustatytiVarda")
-        self.mygtNustatytiVarda.clicked.connect(self.nustatytiVarda)
+        self.buttonSetName = QtWidgets.QPushButton(self.centralwidget)
+        self.buttonSetName.setGeometry(QtCore.QRect(280, 280, 271, 20))
+        self.buttonSetName.setObjectName("buttonSetName")
+        self.buttonSetName.clicked.connect(self.setDeviceName)
 
-        self.mygtNustatytiSerNr = QtWidgets.QPushButton(self.centralwidget)
-        self.mygtNustatytiSerNr.setGeometry(QtCore.QRect(280, 310, 271, 21))
-        self.mygtNustatytiSerNr.setLocale(QtCore.QLocale(QtCore.QLocale.Lithuanian, QtCore.QLocale.Lithuania))
-        self.mygtNustatytiSerNr.setObjectName("mygtNustatytiSerNr")
-        self.mygtNustatytiSerNr.clicked.connect(self.nustatytiSerNr)
+        self.buttonSetSerial = QtWidgets.QPushButton(self.centralwidget)
+        self.buttonSetSerial.setGeometry(QtCore.QRect(280, 310, 271, 21))
+        self.buttonSetSerial.setObjectName("buttonSetSerial")
+        self.buttonSetSerial.clicked.connect(self.setSerialNo)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -100,188 +88,187 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.mygtGautiTemperatura.setText(_translate("MainWindow", "Nuskaityti temperatūrą"))
-        self.istrintiAtminti.setText(_translate("MainWindow", "Ištrinti atmintį"))
-        self.mygtGautiLaika.setText(_translate("MainWindow", "Nuskaityti laiką ir datą"))
-        self.mygtGautiVardaSerNr.setText(_translate("MainWindow", "Nuskaityti prietaiso vardą ir serijinį numerį"))
-        self.mygtGautiMygtuka.setText(_translate("MainWindow", "Nuskaityti mygtuko būseną"))
-        self.infoLaukas.setText(_translate("MainWindow", ""))
-        self.mygtNustatytiLaika.setText(_translate("MainWindow", "Nustatyti prietaisui kompiuterio laiką ir datą"))
-        self.mygtNustatytiVarda.setText(_translate("MainWindow", "Nustatyti prietaiso vardą"))
-        self.mygtNustatytiSerNr.setText(_translate("MainWindow", "Nustatyti prietaiso serijinį numerį"))
-        self.infoLaukas2.setText(_translate("MainWindow", ""))
+        self.buttonGetTemp.setText(_translate("MainWindow", "Read Temperature"))
+        self.buttonDeleteMemory.setText(_translate("MainWindow", "Delete Flash Memory"))
+        self.buttonGetTime.setText(_translate("MainWindow", "Read Date and Time"))
+        self.buttonGetNameSerial.setText(_translate("MainWindow", "Read Name and Serial Number"))
+        self.buttonGetButton.setText(_translate("MainWindow", "Read Button Status"))
+        self.infoField.setText(_translate("MainWindow", ""))
+        self.buttonSetTime.setText(_translate("MainWindow", "Set PC's Time and Date to Device"))
+        self.buttonSetName.setText(_translate("MainWindow", "Set Name For Device"))
+        self.buttonSetSerial.setText(_translate("MainWindow", "Set Serial Number For Device"))
+        self.infoField2.setText(_translate("MainWindow", ""))
 
-    # Rasoma uzklausa skirta temperaturos nuskaitymui, po to apdorojamas atsakymas
-    def gautiTemperatura(self):
-        self.infoLaukas2.setText("")
+    # Function writes request to be sent to get temperature, after that, processing the result
+    def getTemperature(self):
+        self.infoField2.setText("")
 
-        uzklausa = "a\n"
-        atsakymas = self.siustiUzklausa(uzklausa)
+        request = "a\n"
+        answer = self.sendRequest(request)
         
-        if atsakymas == 'a\n':
-            self.infoLaukas.setText("Klaida matuojant temperaturą!")
+        if answer == 'a\n':
+            self.infoField.setText("Error while measuring temperature")
         else:
-            self.infoLaukas.setText("Temperatūra: " + atsakymas[1:])
+            self.infoField.setText("Temperature: " + answer[1:])
 
-    # Rasoma uzklausa skirta mygtuko busenai, po to apdorojamas atsakymas    
-    def gautiMygtuka(self):
-        self.infoLaukas2.setText("")
+    # Function writes request to be sent to get button status, after that, processing the result    
+    def getButton(self):
+        self.infoField2.setText("")
 
-        uzklausa = 'b\n'
-        atsakymas = self.siustiUzklausa(uzklausa)
+        request = 'b\n'
+        answer = self.sendRequest(request)
 
-        if atsakymas == 'b1\n':
-            self.infoLaukas.setText("Mygtukas yra paspaustas")
-        elif atsakymas == 'b2\n':
-            self.infoLaukas.setText("Mygtukas nėra paspaustas")
+        if answer == 'b1\n':
+            self.infoField.setText("Button is pressed")
+        elif answer == 'b2\n':
+            self.infoField.setText("Button is not pressed")
         else:
-            self.infoLaukas.setText("Nenumatyta klaida!")
+            self.infoField.setText("Unforeseen error")
 
-    # Rasoma uzklausa skirta duomenu gavimui, po to apdorojamas atsakymas
-    def gautiVardaSerNr(self):
-        self.infoLaukas2.setText("")
+    # Function writes request to be sent to get name and serial number, after that, processing the result
+    def getNameAndSerial(self):
+        self.infoField2.setText("")
 
-        uzklausa = 'c\n'
-        atsakymas = self.siustiUzklausa(uzklausa)
+        request = 'c\n'
+        answer = self.sendRequest(request)
 
-        if atsakymas == 'c\n':
-            self.infoLaukas.setText("Prietaisas neturi nei vardo, nei serijinio numerio")
-        elif atsakymas == 'x\n':
-            self.infoLaukas.setText("Nenumatyta klaida")
+        if answer == 'c\n':
+            self.infoField.setText("Device doesn't have name, nor serial number")
+        elif answer == 'x\n':
+            self.infoField.setText("Unforeseen error")
         else:
-            vardas = atsakymas[0:15]
-            serijinisNr = atsakymas[16:32]
+            deviceName = answer[0:15]
+            serialNumber = answer[16:32]
 
-            if vardas.isspace():
-                vardasStr = "Prietaisas neturi vardo"
+            if deviceName.isspace():
+                deviceNameStr = "Device doesn't have name"
             else:
-                vardasStr = "Prietaiso vardas yra: " + vardas
+                deviceNameStr = "Device name: " + deviceName
 
-            if serijinisNr.isspace():
-                serijinisNrStr = "Prietaisas neturi serijinio numerio"
+            if serialNumber.isspace():
+                serialNumberStr = "Device does not have serial number"
             else:
-                serijinisNrStr = "Prietaiso serijinis numeris yra: " + serijinisNr
+                serialNumberStr = "Serial number: " + serialNumber
             
-            self.infoLaukas.setText(vardasStr + '\n' + serijinisNrStr)
+            self.infoField.setText(deviceNameStr + '\n' + serialNumberStr)
 
-    # Rasoma uzklausa skirta laiko gavimui, po to apdorojamas atsakymas
-    def gautiLaika(self):
-        self.infoLaukas2.setText("")
 
-        uzklausa = 'd\n'
-        atsakymas = self.siustiUzklausa(uzklausa)
+    # Function writes request to be sent to get time, after that, processing the result
+    def getCurrentTime(self):
+        self.infoField2.setText("")
 
-        if atsakymas == 'd-1\n':
-            self.infoLaukas.setText("Prietaisas neturi nustatyto laiko")
+        request = 'd\n'
+        answer = self.sendRequest(request)
+
+        if answer == 'd-1\n':
+            self.infoField.setText("Device does not have set time")
         else:
             try:
-                laikas = int(atsakymas[1:])
-                laikasStr = datetime.utcfromtimestamp(laikas).strftime('%Y-%m-%d %H:%M:%S')
-                self.infoLaukas.setText("Dabar yra: " + laikasStr)
+                timeRTC = int(answer[1:])
+                timeString = datetime.utcfromtimestamp(timeRTC).strftime('%Y-%m-%d %H:%M:%S')
+                self.infoField.setText("Time now: " + timeString)
             except:
-                self.infoLaukas.setText("Nenumatyta klaida!")        
+                self.infoField.setText("Unforeseen error")        
 
-    # Rasoma uzklausa skirta laiko nustatymui, po to apdorojamas atsakymas
-    def nustatytiLaika(self):
-        self.infoLaukas.setText("")
-
-        try:
-            uzklausa = 'e' + str(round(time.clock_gettime(time.CLOCK_REALTIME) + 3600)) + '\n'
-        except:
-            uzklausa = 'k\n'
-        atsakymas = self.siustiUzklausa(uzklausa)
-
-        if atsakymas == 'e\n':
-            self.infoLaukas2.setText("Naujas laikas nustatytas sėkmingai")
-        else:
-            self.infoLaukas.setText("Nenumatyta klaida!")
-
-    # Rasoma uzklausa skirta vardo nustatymui, po to apdorojamas atsakymas    
-    def nustatytiVarda(self):
-        self.infoLaukas.setText("")
+    # Function writes request to be sent to set time, after that, processing the result
+    def setCurrentTime(self):
+        self.infoField.setText("")
 
         try:
-            tekstoLaukas = self.vardasTekstas.text()
-            uzklausa = 'f' + str(tekstoLaukas) + '\n'
+            request = 'e' + str(round(time.clock_gettime(time.CLOCK_REALTIME) + 3600)) + '\n'
         except:
-            uzklausa = 'k\n'
-        atsakymas = self.siustiUzklausa(uzklausa)
+            request = 'k\n'
+        answer = self.sendRequest(request)
 
-        if atsakymas == 'f\n':
-            self.infoLaukas2.setText("Naujas vardas nustatytas sėkmingai")
+        if answer == 'e\n':
+            self.infoField2.setText("New time set")
         else:
-            self.infoLaukas2.setText("Nenumatyta klaida!")        
+            self.infoField2.setText("Unforeseen error")
 
-    # Rasoma uzklausa skirta serijinio nr nuskaitymui, po to apdorojamas atsakymas
-    def nustatytiSerNr(self):
-        self.infoLaukas.setText("")
+    # Function writes request to be sent to set name, after that, processing the result 
+    def setDeviceName(self):
+        self.infoField.setText("")
 
         try:
-            tekstoLaukas = self.serNrTekstas.text()
-            uzklausa = 'g' + str(tekstoLaukas) + '\n'
+            textField = self.nameTextField.text()
+            request = 'f' + str(textField) + '\n'
         except:
-            uzklausa = 'k\n'
-        atsakymas = self.siustiUzklausa(uzklausa)
+            request = 'k\n'
+        answer = self.sendRequest(request)
 
-        if atsakymas == 'f\n':
-            self.infoLaukas2.setText("Naujas serijinis numeris nustatytas sėkmingai")
+        if answer == 'f\n':
+            self.infoField2.setText("Device name set successfully")
         else:
-            self.infoLaukas2.setText("Nenumatyta klaida!")       
+            self.infoField2.setText("Unforeseen error")        
 
-    # Rasoma uzklausa skirta atminties trynimui, po to apdorojamas atsakymas
-    def trintiAtminti(self):
-        self.infoLaukas2.setText("")
-        uzklausa = "h\n"
-        atsakymas = self.siustiUzklausa(uzklausa)
+    # Function writes request to be sent to set serial number, after that, processing the result
+    def setSerialNo(self):
+        self.infoField.setText("")
+
+        try:
+            textField = self.serialTextField.text()
+            request = 'g' + str(textField) + '\n'
+        except:
+            request = 'k\n'
+        answer = self.sendRequest(request)
+
+        if answer == 'f\n':
+            self.infoField2.setText("Serial number set successfully")
+        else:
+            self.infoField2.setText("Unforeseen error")       
+
+    # Function writes request to be sent to delete flash memory, after that, processing the result
+    def deleteFlashMemory(self):
+        self.infoField2.setText("")
+        request = "h\n"
+        answer = self.sendRequest(request)
         
-        if atsakymas == "h\n":
-            self.infoLaukas.setText("Atmintis ištrinta sėkmingai")
+        if answer == "h\n":
+            self.infoField.setText("Memory deleted succesfully")
         else:
-            self.infoLaukas2.setText("Nenumatyta klaida!")
+            self.infoField.setText("Unforeseen error")
         
     """
-    Sioje funkcijoje mes nusiunciame uzklausa mbedui
+    In this function, request is sent to mbed
     
-    uzklausa turi nuo 2 iki 18 simboliu
-    uzklausa[0] yra simbolis, kuris pasako mbedui i kuria funkcija kreiptis
+    request has from 2 to 18 symbols
+    request[0] tells mbed which function to go to
     
-    pavyzdziui, jeigu mbedas gauna uzklausa[0] = 'a', reiskia, kad kompiuteris
-    paprase pamatuoti temperatura
+    for example, if mbed gets request[0] = 'a', means that PC asked to get temperature
 
-    uzklausoms siusti naudojamas serial modulis
+    serial module is used for two-way communication
     """    
-    def siustiUzklausa(self, uzklausa):
+    def sendRequest(self, request):
 
-        galimaSiustiUzklausa = True
+        canSetRequest = True
 
-        # patikrina ar nustatant varda arba serijini nr, teksto laukas nera tuscias
-        if (uzklausa[0] in ['f', 'g']):
+        # Checks if the text field is not empty
+        if (request[0] in ['f', 'g']):
             
-            if (len(uzklausa) < 3):
-                self.infoLaukas2.setText("Palikote tuščią lauką")
-                galimaSiustiUzklausa = False
+            if (len(request) < 3):
+                self.infoField2.setText("You have left empty field")
+                canSetRequest = False
 
-            elif (len(uzklausa) > 18):
-                self.infoLaukas2.setText("Maksimalus simbolių kiekis - 16")
-                galimaSiustiUzklausa = False
+            elif (len(request) > 18):
+                self.infoField2.setText("Max symbol amount - 16")
+                canSetRequest = False
 
-        # patikrina ar nebuvo kokios klaidos
-        if (uzklausa[0] not in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']):
-            galimaSiustiUzklausa = False
-            self.infoLaukas2.setText("Nenumatyta klaida")
+        # Checks if there were any other mistakes in request
+        if (request[0] not in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']):
+            canSetRequest = False
+            self.infoField.setText("Unforeseen error")
 
-        #jeigu visi kriterijai buvo praeiti, uzkoduoti uzklausa i baitus ir siusti
-        if (galimaSiustiUzklausa):    
+        # If all criterias passed, send the request
+        if (canSetRequest):    
             
-            #raso iki endline simbolio
-            serialPort.write(uzklausa.encode())            
-            
-            # atsakymas is mbedo, kuris ateis tokia pacia forma
-            # skaito iki endline simbolio
-            # uzdetas 5 sekundziu timeout, jeigu iki tol nebus atsakymo, bus klaida
-            atsakymas = serialPort.readline()
-            atsakymas = line.decode()
-            return atsakymas
+            # writes until endline symbol
+            serialPort.write(request.encode())
+                        
+            # answer from mbed will come back in the same format
+            # there is 5 second time out, if timeout is reached, error returned
+            answer = serialPort.readline()
+            answer = answer.decode()
+            return answer
  
 if __name__ == "__main__":
     import sys

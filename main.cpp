@@ -6,113 +6,110 @@
 #define     MEM_SIZE        256
 #define     TARGET_SECTOR    24
 
-void gautiFlashAtminti( char *p, int n );
-void gautiTemperatura();
-void lempute(bool zaliaLemp, bool raudonaLemp);
-void irasomiDuomenys();
-void trintiAtminti();
-void isvalytiEkrana();
-void skaitytiMygtuka();
-void skaitytiDuomenis();
-void skaitytiLaika(time_t seconds);
-void nustatytiLaika();
+void getFlashMemory( char *p, int n );
+void getTemperature();
+void LED(bool greenLED, bool redLED);
+void writeData();
+void deleteFlashMemory();
+void clearScreen();
+void readButton();
+void readFlashMemory();
+void getTime(time_t seconds);
+void setTime();
 
 Serial pc(USBTX, USBRX);
 C12832 lcd(p5, p7, p6, p8, p11);
 LM75B sensor(p28,p27);
-PwmOut raudona (p23);
-PwmOut zalia (p24);
-DigitalIn mygtukas(p14);
+PwmOut redLight (p23);
+PwmOut greenLight (p24);
+DigitalIn inputButton(p14);
 IAP iap;
 
-float temperaturosMatavimas = 0.0;
+float temperatureMeasure = 0.0;
 /////////////////
-char atsakymasIUzklausa[18]; // 0 = simbolis, 1-16 - informacija, 17 = \n
-char gautaUzklausa[18]; // 0 = simbolis, 1-16 informacija, 17 = \n
-char buffer[32]; // bufferis laikyti dalykams;
-char prietaisoDuomenys[33]; // 0-15 vardas, 16-31 serijinis numeris, 32 = \n
+char answerToRequest[18]; // 0 - symbol for next step, 1-16 - info, 17 = \n
+char receivedRequest[18]; // 0 - symbol for next step, 1-16 - info, 17 = \n
+char buffer[32]; // buffer to keep things
+char deviceData[33]; // 0-15 name, 16-31 serial number, 32 = \n
 /////////////////
-long int laikas;
-char *siuksles; // viena naudojama funkcija reikalauja pointerio, nors man jo nereikia
+long int timeRTC;
+char *trash; // one of used functions require to use a pointer, even though I don't need it
 /////////////////
-bool vardasNustatytas = false;
-bool serNrNustatytas = false;
+bool nameIsSet = false;
+bool serialIsSet = false;
 
 int main()
 {
         
-    raudona = 1.0;  
-    zalia = 1.0;
+    redLight = 1.0;  
+    greenLight = 1.0;
 
-    // Paziureti ar flash atmintyje yra prietaiso vardas ir serijinis numeris
-    // Jei taip, ikelti juos i prietaisoDuomenys
+    // Check if name or serial no is in flash memory
+    // If so, move it to deviceData
     
-    gautiFlashAtminti(sector_start_adress[ TARGET_SECTOR ], 32);
-    if ((strlen(prietaisoDuomenys) > 16) && (prietaisoDuomenys[0] != ' ')) {
-        vardasNustatytas = true;
-        serNrNustatytas = true;
+    getFlashMemory(sector_start_adress[ TARGET_SECTOR ], 32);
+    if ((strlen(deviceData) > 16) && (deviceData[0] != ' ')) {
+        nameIsSet = true;
+        serialIsSet = true;
         }
-    else if ((strlen(prietaisoDuomenys) < 16) && (prietaisoDuomenys[0] != ' ')) {
-        vardasNustatytas = true;
-        serNrNustatytas = false;
+    else if ((strlen(deviceData) < 16) && (deviceData[0] != ' ')) {
+        nameIsSet = true;
+        serialIsSet = false;
         }
-    else if ((strlen(prietaisoDuomenys) > 16) && (prietaisoDuomenys[0] == '\n')) {
-        vardasNustatytas = false;
-        serNrNustatytas = true;
+    else if ((strlen(deviceData) > 16) && (deviceData[0] == '\n')) {
+        nameIsSet = false;
+        serialIsSet = true;
         }
     else {
-        // palikti nenustatyta
+        // leave unset
         }        
 
-    // mbedas visada laukia komandos    
+    // mbed always waits for request    
     while(1) {
             
-        pc.scanf("%s", gautaUzklausa);
+        pc.scanf("%s", receivedRequest);
         
-        // laiko skaiciavimas 
+        // time calculating 
         time_t seconds = time(NULL);
 
-        // gavus komanda isvalyti viska, kas buvo pries tai
-        isvalytiEkrana();
+        clearScreen();
 
-        // pagal tai kokia uzklausos pirma raide, eiti i atitinkama funkcija
-        if (gautaUzklausa[0] == 'a') {
-            gautiTemperatura();            
+        if (receivedRequest[0] == 'a') {
+            getTemperature();            
         }
-        if (gautaUzklausa[0] == 'b') {
-            skaitytiMygtuka();
+        if (receivedRequest[0] == 'b') {
+            readButton();
         }
-        if (gautaUzklausa[0] == 'c') { 
-            skaitytiDuomenis();
-        }
-        
-        if (gautaUzklausa[0] == 'd') {
-            skaitytiLaika(seconds);
+        if (receivedRequest[0] == 'c') { 
+            readFlashMemory();
         }
         
-        if (gautaUzklausa[0] == 'e') {             
-            nustatytiLaika();            
+        if (receivedRequest[0] == 'd') {
+            getTime(seconds);
         }
         
-        if (gautaUzklausa[0] == 'f' || gautaUzklausa[0] == 'g') {
-            irasomiDuomenys();            
+        if (receivedRequest[0] == 'e') {             
+            setTime();            
         }
         
-        if (gautaUzklausa[0] == 'h') {
-            trintiAtminti();
-            vardasNustatytas = false;
-            serNrNustatytas = false;
+        if (receivedRequest[0] == 'f' || receivedRequest[0] == 'g') {
+            writeData();            
+        }
+        
+        if (receivedRequest[0] == 'h') {
+            deleteFlashMemory();
+            nameIsSet = false;
+            serialIsSet = false;
             pc.printf("h\n");
-            lempute(true, false);
+            LED(true, false);
         }
         else {
-            // jeigu neatpazystama uzklausa, grazinti "x\n"
-            pc.printf("x\n");
+            // if request unrecognized, return "x\n"
         }
 
-        // nusiuntus atsakyma istrinti viska, del visa ko
-        memset(gautaUzklausa,0,sizeof(gautaUzklausa));
-        memset(atsakymasIUzklausa,0,sizeof(atsakymasIUzklausa));
+        // delete everything that has been stored before, except deviceData
+        memset(receivedRequest,0,sizeof(receivedRequest));
+        memset(answerToRequest,0,sizeof(answerToRequest));
         memset(buffer,0,sizeof(buffer));
     }
     
@@ -120,152 +117,143 @@ int main()
 
 #include    <ctype.h>
 
-// funkcija skaito duomenis is flash atminties
-// daugiau: https://os.mbed.com/users/okano/code/IAP_internal_flash_write//file/382f38b15c22/main.cpp/
+// function reads from flash memory
+// more: https://os.mbed.com/users/okano/code/IAP_internal_flash_write//file/382f38b15c22/main.cpp/
 
-void gautiFlashAtminti( char *base, int n )
+void getFlashMemory( char *base, int n )
 {
     unsigned int    *p;
     char            s[17]   = { '\x0' };
     int k = 0;
 
-    // paima hexadecimal reiksmes is atminties ir raso jas i prietaisoDuomenys
-    // vyksta daug vertimo is vieno duomenu tipo i kita
+    // gets hexadecimal values and writes them into deviceData
     p   = (unsigned int *)((unsigned int)base & ~(unsigned int)0x3);
  
     for ( int i = 0; i < (n >> 2); i++, p++ ) {
         if (!(i % 4)) { 
             for (int j = 0; j < 16; j++) {
                 s[j]  = isgraph((int)(*((char *)p + j))) ? (*((char *)p + j)) : ' ';
-                prietaisoDuomenys[k] = s[j];
+                deviceData[k] = s[j];
                 k++;
             }
         }
     }   
 }
 
-// funkcija skaito temperatura is sensoriaus
-void gautiTemperatura()
+// function to read temperature
+void getTemperature()
 {   
     char stringTemp[9];
     if (sensor.open()) {    
         
-        // gauna temperaturos reiskme
-        temperaturosMatavimas = sensor.temp();
+        // get temp value
+        temperatureMeasure = sensor.temp();
 
-        // pavercia temperatura i stringa, nes grazinti reikia stringa      
-        sprintf(stringTemp, "%.3f\n", temperaturosMatavimas);
+        // convert to string, because we are returning string 
+        sprintf(stringTemp, "%.3f\n", temperatureMeasure);
         
-        // rasomas atsakymasIUzklausa
-        atsakymasIUzklausa[0] = 'a';        
+        // write the answerToRequest
+        answerToRequest[0] = 'a';        
         int i = 1;
         while(stringTemp[i] != '\n') {
-            atsakymasIUzklausa[i] = stringTemp[i-1];
+            answerToRequest[i] = stringTemp[i-1];
             i++;
         }
-        atsakymasIUzklausa[i] = '\n';
+        answerToRequest[i] = '\n';
 
-        // grazinamas atsakymas python programai
-        pc.printf("%s", atsakymasIUzklausa);
+        // answer is returned
+        pc.printf("%s", answerToRequest);
 
-        // spausdinti ant ekrano prietaise ir pasviesti ijungti lempute
-        lcd.printf("Temperatura: %s", stringTemp);
-        lempute(true, false);
+        // print temperature and flash LED
+        lcd.printf("Temperature: %s", stringTemp);
+        LED(true, false);
 
     } 
     
     else {
         
-        // jeigu bloga uzklausa, pasviesti raudona lempute, grazinti klaida
-        atsakymasIUzklausa[0] = 'a';
-        atsakymasIUzklausa[1] = '\n';
-        pc.printf("%s", atsakymasIUzklausa);
-        lcd.printf("Klaida matuojant temperatura!");
-        lempute(false, true);
+        // if request is bad, return error
+        answerToRequest[0] = 'a';
+        answerToRequest[1] = '\n';
+        pc.printf("%s\n", answerToRequest);
+        lcd.printf("Error! Cannot measure temperature!");
+        LED(false, true);
     }
 }
 
-// fukcija lemputei pasviesti
-// funkcija ima du argumentus, priklausomai nuo to, kokios lemputes reikia
-// pirmas argumentas zalia lempute, antras argumentas raudona
-// jeigu reikia zalios lemputes, siusti zaliaLemp = true
-// pavyzdziui: lempute(true, false) zaliai lemputei
-//             lempute(false, true) raudonai lemputei
-void lempute(bool zaliaLemp, bool raudonaLemp)
+// function to light LED
+// takes two arguments, depending on which light you need
+// for green, send greenLED = true
+// for red, send redLED = true
+
+void LED(bool greenLED, bool redLED)
 {
-    PwmOut *lemputesAdresas;
+    PwmOut *addressForLed;
     
-    // jeigu norime zalios lemputes, nustatyti pointeri i zalia lempute
-    // jeigu norime raudonos, nustatyti pointeri i raudona lempute
-    if (zaliaLemp == true && raudonaLemp == false) {
-        lemputesAdresas = &zalia;
+    if (greenLED == true && redLED == false) {
+        addressForLed = &greenLight;
         }
-    else if (zaliaLemp == false && raudonaLemp == true) {
-        lemputesAdresas = &raudona;
+    else if (greenLED == false && redLED == true) {
+        addressForLed = &redLight;
         }
     else {
-        lempute(false, true);
+        LED(false, true);
         }
-    
-    // pamirkseti lempute
+
     for (int i = 0; i < 5; i++) {
-        *lemputesAdresas = 0.0;
+        *addressForLed = 0.0;
         wait(0.05);
-        *lemputesAdresas = 1.0;
+        *addressForLed = 1.0;
         wait(0.05);
         }
 }
 
-// funkcija raso turimus prietaisoDuomenys i flash atminti
-// mbed leidzia rasyti atminti tik sektoriais 256, 512, 1024, 2048
-// tad net jei ir norime rasyti tik 32 simbolius, reikia uzpildyti visus 256 siuo atveju
+// function writes RAM memory into flash
+// Mbed allows to write only sectors of size 256, 512, 1024, 2048
+// We write data we need to save into mem, then fill rest with empty addresses
 
-void irasomiDuomenys() {
-        char    mem[ MEM_SIZE ]; // sis array bus rasomas i flash atminti
-        int     r; // r yra reikalingas norint naudoti kaikurias mbed rasymo i atminti funckijas   
+void writeData() {
+        char    mem[ MEM_SIZE ]; // this array will be written into memory
+        int     r; // used for some of memory writin functions  
         
-        // jeigu praso rasyti varda, rasyti varda i mem
-        // visa kita uzpildyti tarpais, po mem[32] uzpildyti tusciais adresais
-        // patikrina ar duomenys jau buvo pries tai irasyti
-        // kadangi rasymas perrasys senus duomenis, reikia issisaugoti tai kas buvo irasyta pries tai
-
-        if (gautaUzklausa[0] == 'f') {            
+        // this part if we are asked to write name
+        if (receivedRequest[0] == 'f') {            
             for (int i = 0; i < 32; i++) {                
                 if (i < 16) {                    
-                    if (i < (strlen(gautaUzklausa)-1)) {                        
-                        mem[i] = gautaUzklausa[i+1];                           
+                    if (i < (strlen(receivedRequest)-1)) {                        
+                        mem[i] = receivedRequest[i+1];                           
                         }
                     else {                        
                         mem[i] = ' ';                        
                         }
                     }                
                 else {                    
-                    if (serNrNustatytas == true) {                        
-                        mem[i] = prietaisoDuomenys[i];                        
+                    if (serialIsSet == true) {                        
+                        mem[i] = deviceData[i];                        
                         }
                     else {
                         mem[i] = ' ';
                         }
-                    vardasNustatytas = true;
+                    nameIsSet = true;
                     }
                 }
             }
-        // jeigu praso rasyti serijini nr, naudoti sita dali
-        else if (gautaUzklausa[0] == 'g') {            
+        // this part if we are asked to write serial no
+        else if (receivedRequest[0] == 'g') {            
             for (int i = 0; i < 32; i++) {                
                 if (i < 16) {
-                    if (vardasNustatytas == true) {
-                        mem[i] = prietaisoDuomenys[i];
+                    if (nameIsSet == true) {
+                        mem[i] = deviceData[i];
                         }
                     else {
                         mem[i] = ' ';
 
                         }
-                    serNrNustatytas = true;                        
+                    serialIsSet = true;                        
                     }
                 else {
-                    if (i < (strlen(gautaUzklausa) + 15)) {
-                        mem[i] = gautaUzklausa[i-15];
+                    if (i < (strlen(receivedRequest) + 15)) {
+                        mem[i] = receivedRequest[i-15];
                     }
                 else {
                     mem[i] = ' ';
@@ -274,28 +262,27 @@ void irasomiDuomenys() {
                 }
             }
         
-        // rasyti tuscius adresus i likusia mem dali
+        // write empty addresses into remaining ones
         for ( int i = 32; i < MEM_SIZE; i++ ) {
-            mem[ i ]    = i & 0xFF;
+            mem[i] = i & 0xFF;
         }
         
-        // trinti atminti, kad irasyti naujus duomenis
-        trintiAtminti();
+        deleteFlashMemory();
 
-        // specialios IAP funkcijos skirtos rasymui is RAM i flash atminti        
+        // special IAP functions written to write from RAM to flash 
         iap.prepare( TARGET_SECTOR, TARGET_SECTOR );
         r = iap.write( mem, sector_start_adress[ TARGET_SECTOR ], MEM_SIZE );
-        // gauti naujai irasytus duomenis
-        gautiFlashAtminti(sector_start_adress[ TARGET_SECTOR ], 32);
+        // get newly written data
+        getFlashMemory(sector_start_adress[ TARGET_SECTOR ], 32);
         
-        // grazinti atsakyma ir pasviesti lempute
+        // return answer, light LED
         pc.printf("f\n");
-        lcd.printf("Duomenys nustatyti sekmingai");
-        lempute(true, false);
+        lcd.printf("Data written successfully");
+        LED(true, false);
 }
 
-// funkcija trina flash atminti
-void trintiAtminti()
+// function to delete flash memory
+void deleteFlashMemory()
 {
     int r;
         r   = iap.blank_check( TARGET_SECTOR, TARGET_SECTOR );
@@ -305,76 +292,74 @@ void trintiAtminti()
         }
 }
 
-// funkcija isvalo ekrana
-void isvalytiEkrana()
+// function to clear screen on the device
+void clearScreen()
 {
     lcd.cls();
     lcd.locate(0,3);    
 }
 
-// funkcija skaito user-input mygtuka
-void skaitytiMygtuka()
+// function reads user input button
+void readButton()
 {
-    // jeigu mygtukas nuspaustas grazina toki atsakyma
-    if (mygtukas) {
-        lcd.printf("Mygtukas paspaustas");
+    if (inputButton) {
+        lcd.printf("Button is pressed");
         pc.printf("b1\n");   
         }
-    // jeigu nenuspasutas - toki
     else {
-        lcd.printf("Mygtukas nepaspaustas");
+        lcd.printf("Button is not pressed");
         pc.printf("b2\n");    
         }
-    lempute(true, false);      
+    LED(true, false);      
 }
 
-// patikrinti ar flash atmintyje yra duomenu, jeigu taip - skaityti juos
-void skaitytiDuomenis()
+// function checks if there is something in the flash memory, if so, returns it 
+void readFlashMemory()
 {
-    if ((vardasNustatytas == false) && (serNrNustatytas == false)) {
-        lcd.printf("Prietaisas neturi vardo ir serijinio numerio");
+    if ((nameIsSet == false) && (serialIsSet == false)) {
+        lcd.printf("Device does not have name nor serial number");
         pc.printf("c\n");
-        lempute(false, true);
+        LED(false, true);
         }
     else {
-        gautiFlashAtminti(sector_start_adress[ TARGET_SECTOR ], 32);
-        lcd.printf("Vardas  ir serijinis  numeris: %s", prietaisoDuomenys);
-        pc.printf("%s\n", prietaisoDuomenys);
-        lempute(true, false);
+        getFlashMemory(sector_start_adress[ TARGET_SECTOR ], 32);
+        lcd.printf("Name  and  serial  number:  %s", deviceData);
+        pc.printf("%s\n", deviceData);
+        LED(true, false);
         }     
 
 }
 
-// funckija skirta nuskaityti laika is mbed
-void skaitytiLaika(time_t seconds)
+// function to get time
+void getTime(time_t seconds)
 {
     strftime(buffer, 32, "%Y-%m-%d %H:%M:%S\n", localtime(&seconds));
     if (seconds == -1) {
-        lcd.printf("Prietaiso laikas nenustatytas");
+        lcd.printf("Device time has not been set yet");
         pc.printf("d-1\n");
-        lempute(false, true);
+        LED(false, true);
         }
     else {
         lcd.printf("%s", buffer);
         pc.printf("d%d\n", seconds);
-        lempute(true, false);           
+        LED(true, false);           
         } 
 }
 
-// funkcija skirta nustatyti laika
-void nustatytiLaika()
+// function to set time
+void setTime()
 {
-    for (int i = 1; i < sizeof(gautaUzklausa) + 1; i++) {
-        buffer[i-1] = gautaUzklausa[i];
+    for (int i = 1; i < sizeof(receivedRequest) + 1; i++) {
+        buffer[i-1] = receivedRequest[i];
         }
     
-    // paversti gauta uzklausos stringa i long int
-    laikas = strtol(buffer, &siuksles, 10);
+    // convert request string to long int
+    timeRTC = strtol(buffer, &trash, 10);
     
-    // nustatyti rtc laika
-    set_time(laikas);
+    // set RTC time
+    set_time(timeRTC);
             
-    lcd.printf("Naujas laikas nustatytas sekmingai");
+    lcd.printf("New time set successfully");
     pc.printf("e\n");
-    lempute(true, false);
+    LED(true, false);
 }
